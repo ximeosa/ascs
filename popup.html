@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Bookmark</title>
+  <link rel="stylesheet" type="text/css" href="popup.css">
+</head>
+<body>
+  <h1>YouTube Bookmarks</h1>
+
+  <div class="action-section">
+    <input type="text" id="category-input" placeholder="Enter category (for videos)">
+    <div class="action-buttons-group">
+      <button id="save-video-button">Save Current Video</button>
+      <button id="save-channel-button">Save Current Channel</button>
+    </div>
+  </div>
+  
+  <div id="status-message"></div>
+
+  <div id="saved-videos-section" class="list-section">
+    <h2>Saved Videos</h2>
+    <div class="controls-section">
+      <div>
+        <label for="video-sort-options">Sort Videos by:</label>
+        <select id="video-sort-options">
+          <option value="dateAdded">Date (Newest First)</option>
+          <option value="category">Category (A-Z)</option>
+          <option value="title">Title (A-Z)</option>
+        </select>
+      </div>
+      <div>
+        <label for="video-category-filter">Filter by Category:</label>
+        <select id="video-category-filter">
+          <option value="all">All Categories</option>
+        </select>
+      </div>
+    </div>
+    <ul id="videos-list"></ul>
+  </div>
+
+  <div id="saved-channels-section" class="list-section">
+    <h2>Saved Channels</h2>
+    <div class="controls-section">
+      <div>
+        <label for="channel-sort-options">Sort Channels by:</label>
+        <select id="channel-sort-options">
+          <option value="dateAdded">Date (Newest First)</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+    </div>
+    <ul id="channels-list"></ul>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
