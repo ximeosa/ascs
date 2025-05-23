@@ -11,7 +11,7 @@
   ],
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/watch*"],
+      "matches": ["*://*.youtube.com/watch*", "*://*.youtube.com/channel/*", "*://*.youtube.com/user/*", "*://*.youtube.com/@*"],
       "js": ["get_channel_info_content_script.js"],
       "run_at": "document_idle"
     }
