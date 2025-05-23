@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saved Videos</title>
+    <link rel="stylesheet" type="text/css" href="common_styles.css">
+</head>
+<body>
+    <h1>Saved Videos</h1>
+    <div id="status-message"></div>
+    <div class="controls-section">
+        <div>
+            <label for="video-sort-options">Sort Videos by:</label>
+            <select id="video-sort-options">
+                <option value="dateAdded">Date (Newest First)</option>
+                <option value="category">Category (A-Z)</option>
+                <option value="title">Title (A-Z)</option>
+            </select>
+        </div>
+        <div>
+            <label for="video-category-filter">Filter by Category:</label>
+            <select id="video-category-filter">
+                <option value="all">All Categories</option>
+                <!-- Other categories will be populated by JavaScript -->
+            </select>
+        </div>
+    </div>
+    <ul id="videos-list"></ul>
+    <script src="saved_videos.js"></script>
+</body>
+</html>

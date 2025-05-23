@@ -1,179 +1,51 @@
+/* popup.css - Specific styles for the popup */
 body {
-  width: 350px; /* Increased width for better layout */
-  padding: 15px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  background-color: #f4f4f4;
-  color: #333;
+  width: 300px; /* Adjusted width for a simpler popup */
+  /* Other body styles like padding, font-family are in common_styles.css */
 }
 
-h1, h2 {
-  text-align: center;
-  color: #2c3e50;
+/* Styles for the action section in popup.html */
+.action-section input[type="text"] {
+  margin-bottom: 10px; /* Ensure spacing from buttons */
 }
 
+.action-buttons-group button {
+  display: block; /* Stack main action buttons */
+  width: 100%;
+  margin-bottom: 8px; /* Space between stacked buttons */
+  margin-right: 0; /* Remove right margin as they are full width */
+}
+
+.action-buttons-group button:last-child {
+  margin-bottom: 0;
+}
+
+/* Headings in popup might not need specific overrides if common_styles.css is sufficient */
 h1 {
-  font-size: 1.6em;
-  margin-bottom: 15px;
+  font-size: 1.5em; /* Slightly smaller for compact popup */
+  margin-bottom: 10px;
 }
 
 h2 {
-  font-size: 1.3em;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
+ font-size: 1.2em; /* Slightly smaller for compact popup */
+ margin-top: 15px;
+ margin-bottom: 8px;
 }
 
-/* Sections Styling */
-.action-section, .controls-section, .list-section {
-  background-color: #fff;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/*
+  The .navigation-section and .nav-button styles are primarily defined in common_styles.css.
+  If specific overrides for these elements *only* within the popup are needed, they would go here.
+  For example, if nav-buttons in popup needed different sizing:
+*/
+.navigation-section .nav-button {
+  width: calc(100% - 10px); /* Make nav buttons full width in popup */
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
-/* Input and Button Styling */
-input[type="text"], select {
-  width: calc(100% - 22px); /* Account for padding and border */
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-button {
-  background-color: #3498db;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.95em;
-  margin-right: 5px; /* Add some space between buttons */
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #2980b9;
-}
-
-.delete-btn {
-  background-color: #e74c3c;
-  padding: 5px 10px;
-  font-size: 0.85em;
-  margin-left: 10px;
-}
-
-.delete-btn:hover {
-  background-color: #c0392b;
-}
-
-/* List Styling */
-ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-ul li {
-  padding: 12px;
-  margin-bottom: 8px;
-  background-color: #ecf0f1;
-  border-radius: 4px;
-  display: flex; /* For aligning items and delete button */
-  justify-content: space-between; /* Pushes delete button to the right */
-  align-items: center; /* Vertically aligns items */
-  border-bottom: 1px solid #ddd;
-}
-
-ul li:last-child {
-  border-bottom: none;
-}
-
-/* Link Styling */
-a {
-  color: #2980b9;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* Span elements within list items (for category, date) */
-ul li span {
-  font-size: 0.9em;
-  color: #555;
-  margin-left: 8px;
-}
-
-ul li span.item-details { /* Class for category/date spans */
-    display: block; /* Make details appear on a new line or control layout better */
-    font-size: 0.8em;
-    color: #7f8c8d;
-}
-
-
-/* Status Message Styling */
-#status-message {
-  padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.status-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.status-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.status-info {
-  background-color: #e2e3e5;
-  color: #383d41;
-  border: 1px solid #d6d8db;
-}
-
-
-/* Empty State Message Styling */
-.empty-state {
-  font-style: italic;
-  color: #777;
-  text-align: center;
-  padding: 10px;
-}
-#videos-list li.empty-state, #channels-list li.empty-state {
-    justify-content: center; /* Center the text for empty state */
-    background-color: transparent;
-    border-bottom: none;
-}
-
-/* Controls section refinement */
-.controls-section div {
-    margin-bottom: 10px;
-}
-.controls-section label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-}
-select {
-    width: 100%; /* Make select elements full width of their container */
-}
-
-/* Grouping buttons for save video/channel */
-.action-buttons-group button {
-    margin-bottom: 5px; /* Add margin if they stack on smaller widths */
-}
+/* Status message styling is in common_styles.css */
+/* List styling is not needed anymore in popup.css */
+/* Delete button styling is not needed anymore in popup.css */
+/* General link styling is in common_styles.css */
+/* Controls section styling is not needed anymore in popup.css */
+/* Empty state styling is not needed anymore in popup.css */

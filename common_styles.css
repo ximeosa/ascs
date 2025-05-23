@@ -1,0 +1,199 @@
+/* Common styles for YouTube Bookmarker extension pages */
+body {
+  width: 350px; /* Default width, can be overridden */
+  padding: 15px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+h1 {
+  font-size: 1.6em;
+  margin-bottom: 15px;
+}
+
+h2 {
+  font-size: 1.3em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+/* Sections Styling (common for various content blocks) */
+.action-section, .controls-section, .list-section, .navigation-section {
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Input and Select Styling */
+input[type="text"], select {
+  width: calc(100% - 22px); /* Account for padding and border */
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+select {
+    width: 100%; /* Make select elements full width of their container */
+}
+
+/* General Button Styling */
+button {
+  background-color: #3498db; /* Default action button color */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95em;
+  margin-right: 5px; 
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  padding: 5px 10px;
+  font-size: 0.85em;
+  margin-left: 10px; /* Keep margin to separate from list item content */
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Navigation Button Styling */
+.navigation-section {
+   text-align: center; /* Center the buttons */
+}
+
+.nav-button {
+   background-color: #5cb85c; /* A different color to distinguish */
+   color: white;
+   padding: 10px 20px;
+   font-size: 1em;
+   margin: 5px;
+   width: calc(50% - 12px); /* Two buttons side-by-side with a little margin (adjust as needed) */
+   box-sizing: border-box;
+}
+
+.nav-button:hover {
+   background-color: #4cae4c;
+}
+
+
+/* List Styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul li {
+  padding: 12px;
+  margin-bottom: 8px;
+  background-color: #ecf0f1;
+  border-radius: 4px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  border-bottom: 1px solid #ddd;
+}
+
+ul li:last-child {
+  border-bottom: none;
+}
+
+/* Link Styling */
+a {
+  color: #2980b9;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Span elements within list items (for category, date) */
+ul li span.item-details { /* Class for category/date spans */
+    display: block; 
+    font-size: 0.8em;
+    color: #7f8c8d;
+    margin-left: 0; /* Adjust if needed, but block display might handle it */
+}
+ul li > div > span.item-details { /* More specific if spans are inside a div */
+    margin-left: 0;
+}
+
+
+/* Status Message Styling */
+#status-message {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.status-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-info {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
+
+/* Empty State Message Styling */
+.empty-state {
+  font-style: italic;
+  color: #777;
+  text-align: center;
+  padding: 10px;
+  justify-content: center; /* Center the text for empty state */
+  background-color: transparent;
+  border-bottom: none;
+}
+/* Ensure li.empty-state also has these properties if it's a list item */
+ul li.empty-state {
+    justify-content: center;
+    background-color: transparent;
+    border-bottom: none;
+}
+
+
+/* Controls section refinement (for saved_videos.html and saved_channels.html) */
+.controls-section div {
+    margin-bottom: 10px;
+}
+.controls-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
