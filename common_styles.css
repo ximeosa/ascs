@@ -187,13 +187,66 @@ ul li.empty-state {
 }
 
 
-/* Controls section refinement (for saved_videos.html and saved_channels.html) */
-.controls-section div {
-    margin-bottom: 10px;
+/* Controls section refinement */
+.controls-section {
+  /* Existing styles: background, padding, margin, border-radius, box-shadow */
+  display: flex; /* Arrange control groups in a row */
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  gap: 15px; /* Space between control groups */
+  align-items: center; /* Align items vertically */
 }
-.controls-section label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
+
+.control-group {
+  display: flex; /* Align label and select in a row */
+  align-items: center;
+  gap: 5px; /* Space between label and select */
+  flex-grow: 1; /* Allow control groups to grow and share space */
+  flex-basis: 200px; /* Minimum base width for each group before growing */
+}
+
+.control-group label {
+  margin-bottom: 0; /* Remove bottom margin */
+  font-weight: normal; 
+  color: #333; /* Reset color if it was different */
+  white-space: nowrap; /* Prevent label text from wrapping */
+}
+
+.control-group select {
+  /* width: auto; /* Allow select to size based on content and available space - overridden by flex-grow */
+  flex-grow: 1; /* Allow select to grow within its control group */
+  min-width: 120px; /* Ensure a minimum usable width, was 150px, adjusted for compactness */
+  padding: 8px; /* Slightly reduce padding for compactness */
+  margin-bottom: 0; /* Remove bottom margin if it existed */
+}
+
+/* Remove the old more generic div styling within controls-section if it exists */
+.controls-section > div:not(.control-group) {
+    margin-bottom: 0; /* Remove margin from any stray divs */
+}
+
+/* Data Management Section Styling */
+.data-management-section {
+  background-color: #fff; /* Consistent with other sections */
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.data-management-section h2 {
+  margin-top: 0; /* Adjust if h2 already has top margin */
+  margin-bottom: 10px;
+  text-align: left; /* Align heading to the left for this section */
+  border-bottom: none; /* Remove border if not desired here */
+}
+
+.data-management-section button { /* Styling for buttons within this section */
+   background-color: #3498db; /* Example: Default action button blue */
+   color: white;
+   /* padding, border, border-radius, cursor, font-size are inherited from general button style */
+   margin-right: 10px; /* Space if multiple buttons */
+}
+
+.data-management-section button:hover {
+   background-color: #2980b9; /* Darker shade on hover */
 }

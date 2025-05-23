@@ -2,6 +2,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getChannelInfo") {
     let channelName = null;
     let channelUrl = null;
+    let videoCategory = null;
+    let channelLogoUrl = null; // New variable
 
     // Method 1: Try common selectors for channel link
     try {
@@ -57,18 +59,81 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (channelUrl) {
                 channelUrl = new URL(channelUrl).toString();
             }
-            if (channelName && channelUrl) break; // Found good data from VideoObject
+            if (channelName && channelUrl) { /* break; */ } // Don't break yet, might find category in another script tag
+            // Attempt to get category from the same JSON-LD script
+            if (jsonData && jsonData['@type'] === 'VideoObject' && jsonData.genre) {
+              if (Array.isArray(jsonData.genre) && jsonData.genre.length > 0) {
+                videoCategory = jsonData.genre[0];
+              } else if (typeof jsonData.genre === 'string') {
+                videoCategory = jsonData.genre;
+              }
+            }
+            // If we have all three, we can break
+            if (channelName && channelUrl && videoCategory) break;
           }
         }
       } catch (e) {
-        console.warn("YouTube Bookmarker: Error parsing JSON-LD for channel info:", e);
+        console.warn("YouTube Bookmarker: Error parsing JSON-LD for channel/category info:", e);
+      }
+    }
+    
+    // Fallback to meta tag for category if not found via JSON-LD
+    if (!videoCategory) {
+      try {
+        const metaGenre = document.querySelector('meta[itemprop="genre"]');
+        if (metaGenre) {
+          videoCategory = metaGenre.content;
+        }
+      } catch (e) {
+        console.warn("Error accessing meta[itemprop='genre']:", e);
       }
     }
 
-    if (channelName && channelUrl) {
-      sendResponse({ success: true, name: channelName, url: channelUrl });
+    // Attempt to find channelLogoUrl
+    // This logic runs regardless of whether channelUrl was found earlier,
+    // as og:image might be present on video pages and point to the channel logo,
+    // or specific selectors might work on channel pages even if the earlier channelUrl logic failed.
+    try {
+        const metaOgImage = document.querySelector('meta[property="og:image"]');
+        if (metaOgImage && metaOgImage.content) {
+            channelLogoUrl = metaOgImage.content;
+        }
+    } catch (e) { console.warn("YouTube Bookmarker: Error accessing og:image for channel logo:", e); }
+
+    if (!channelLogoUrl) {
+        try {
+            // Selectors for channel avatar/logo on channel pages or sometimes available on video pages
+            const logoSelectors = [
+                '#avatar img.yt-img-shadow', // Common on channel pages
+                'ytd-video-owner-renderer #avatar img', // Channel avatar in video owner block
+                'yt-img-shadow#avatar img', // Older/variant selector for channel avatar
+                'img#img.styleable-image.yt-img-shadow' // Another older variant
+            ];
+            let logoElement = null;
+            for (const selector of logoSelectors) {
+                logoElement = document.querySelector(selector);
+                if (logoElement && logoElement.src) {
+                    channelLogoUrl = new URL(logoElement.src, document.baseURI).href; // Resolve relative URLs
+                    break;
+                }
+            }
+        } catch (e) { console.warn("YouTube Bookmarker: Error accessing img selectors for channel logo:", e); }
+    }
+
+
+    // Determine success based on whether we found at least something useful
+    const foundSomething = channelName || channelUrl || videoCategory || channelLogoUrl;
+
+    if (foundSomething) {
+      sendResponse({
+        success: true,
+        name: channelName || null,
+        url: channelUrl || null,
+        category: videoCategory || null,
+        logoUrl: channelLogoUrl || null
+      });
     } else {
-      sendResponse({ success: false, error: "Could not automatically determine channel information." });
+      sendResponse({ success: false, error: "Could not automatically determine any page information." });
     }
     return true; // Indicates that the response is sent asynchronously
   }

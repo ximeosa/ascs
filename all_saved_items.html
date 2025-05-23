@@ -8,18 +8,27 @@
     <h1>All Saved Items</h1>
     <div id="status-message"></div>
 
+    <div class="data-management-section"> <!-- Existing section -->
+      <h2>Data Management</h2>
+      <button id="export-data-button">Export All Data</button>
+      <input type="file" id="import-file-input" accept=".json" style="display: none;"> <!-- Hidden file input -->
+      <button id="import-data-button" class="management-button">Import Data</button>
+      <!-- Add a small text area or div for import status/log if desired, e.g. -->
+      <div id="import-status-messages" style="margin-top: 10px; font-size: 0.9em;"></div>
+    </div>
+
     <h2>Saved Videos</h2>
     <div class="controls-section" id="video-controls-section">
-        <div>
-            <label for="video-sort-options">Sort Videos by:</label>
+        <div class="control-group">
+            <label for="video-sort-options">Sort:</label>
             <select id="video-sort-options">
                 <option value="dateAdded">Date (Newest First)</option>
                 <option value="category">Category (A-Z)</option>
                 <option value="title">Title (A-Z)</option>
             </select>
         </div>
-        <div>
-            <label for="video-category-filter">Filter by Category:</label>
+        <div class="control-group">
+            <label for="video-category-filter">Filter:</label>
             <select id="video-category-filter">
                 <option value="all">All Categories</option>
                 <!-- Other categories will be populated by JavaScript -->
@@ -30,8 +39,8 @@
 
     <h2>Saved Channels</h2>
     <div class="controls-section" id="channel-controls-section">
-        <div>
-            <label for="channel-sort-options">Sort Channels by:</label>
+        <div class="control-group">
+            <label for="channel-sort-options">Sort:</label>
             <select id="channel-sort-options">
                 <option value="dateAdded">Date (Newest First)</option>
                 <option value="name">Name (A-Z)</option>
