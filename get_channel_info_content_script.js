@@ -1,6 +1,11 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "getChannelInfo") {
+  if (request.action === "ping") {
+    console.log("YouTube Bookmarker: Received ping in content script"); // Optional: for debugging
+    sendResponse({ success: true, action: "pong" });
+    return true; // Indicate async response, though this one is synchronous
+  } else if (request.action === "getChannelInfo") {
     try {
+      console.log("YouTube Bookmarker: Received getChannelInfo in content script"); // Optional: for debugging
       let channelName = null;
       let channelUrl = null;
       let videoCategory = null;
@@ -145,7 +150,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     return true; // Indicates that the response is sent asynchronously
   }
-  // If there are other actions, they might need similar error handling or a default response.
-  // For now, only "getChannelInfo" is critical.
-  return true; // Ensure it returns true for other message types too, if any, to keep the port open if they are async. Or remove if no other types. For safety, keep it.
+  // Optional: handle unknown actions
+  // else {
+  //   console.warn("YouTube Bookmarker: Received unknown action:", request.action);
+  //   sendResponse({ success: false, error: "Unknown action" });
+  // }
+  return true; // Important to return true if you might send a response asynchronously for any action
 });

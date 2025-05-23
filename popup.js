@@ -59,6 +59,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Helper function for saveChannelButton when isVideoUrl is true
+  function getChannelInfoAndSave(currentTabId, videoPageUrl, videoPageTitle) {
+    // Note: videoPageUrl and videoPageTitle are currently unused but passed for potential future use
+    // The content script (getChannelInfo) is expected to determine the actual channel URL and name
+    chrome.tabs.sendMessage(currentTabId, { action: "getChannelInfo" }, function(response) {
+      if (chrome.runtime.lastError) {
+        setStatusMessage('Error communicating with the page to get channel info.', 'error');
+        console.error("Error sending getChannelInfo message after ping/injection:", chrome.runtime.lastError.message);
+        return; 
+      }
+      if (response && response.success && response.url && response.name) {
+        const channelToSave = {
+          url: response.url,
+          name: response.name,
+          dateAdded: new Date().toISOString(),
+          logoUrl: response.logoUrl || null
+        };
+        saveChannelToStorage(channelToSave); // saveChannelToStorage is an existing function
+      } else {
+        let errorMsg = 'Failed to get channel info from video page.';
+        if (response && response.error) errorMsg = response.error;
+        else if (response && (!response.url || !response.name)) errorMsg = 'Content script returned incomplete channel info.';
+        setStatusMessage(errorMsg, 'error');
+        console.warn("getChannelInfo response problematic:", response);
+      }
+    });
+  }
+
   saveButton.addEventListener('click', function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       if (tabs[0] && tabs[0].url) {
@@ -145,32 +173,40 @@ document.addEventListener('DOMContentLoaded', function() {
       const isKnownChannelUrl = url.includes('youtube.com/channel/') || url.includes('youtube.com/user/') || url.includes('youtube.com/@');
 
       if (isVideoUrl) {
-        chrome.tabs.sendMessage(tab.id, { action: "getChannelInfo" }, function(response) {
+        // Attempt to ping the content script first
+        chrome.tabs.sendMessage(tab.id, { action: "ping" }, response => {
           if (chrome.runtime.lastError) {
-            setStatusMessage('Error communicating with the page to get channel info.', 'error');
-            console.error("Error sending message to content script (video page):", chrome.runtime.lastError.message);
-            // Potentially save with whatever info we have, or indicate failure
-            // For now, we'll let the user know it failed.
-            return; 
-          }
-          if (response && response.success && response.url && response.name) { // Ensure we have URL and Name
-            const channelToSave = {
-              url: response.url,
-              name: response.name,
-              dateAdded: new Date().toISOString(),
-              logoUrl: response.logoUrl || null // Add logoUrl
-            };
-            saveChannelToStorage(channelToSave);
+            // Ping failed, runtime.lastError is set. Script is likely not there or not listening.
+            console.warn("YouTube Bookmarker: Ping failed, attempting to inject content script. Error:", chrome.runtime.lastError.message);
+            setStatusMessage('Initializing channel fetch...', 'info'); // Inform user
+
+            chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ['get_channel_info_content_script.js']
+            }, (injectionResults) => {
+              if (chrome.runtime.lastError || !injectionResults || injectionResults.length === 0) {
+                setStatusMessage('Failed to inject script for channel info.', 'error');
+                console.error('Failed to inject get_channel_info_content_script.js:', chrome.runtime.lastError ? chrome.runtime.lastError.message : "No injection results");
+                return;
+              }
+              console.log("YouTube Bookmarker: Content script injected successfully.");
+              // After successful injection, call the helper function
+              getChannelInfoAndSave(tab.id, url, title); 
+            });
+          } else if (response && response.success && response.action === "pong") {
+            // Ping successful, content script is active
+            console.log("YouTube Bookmarker: Ping successful, content script is active.");
+            getChannelInfoAndSave(tab.id, url, title);
           } else {
-            // If response.url or response.name is missing, it's problematic.
-            let errorMsg = 'Failed to get channel info from video page.';
-            if (response && response.error) errorMsg = response.error;
-            else if (response && (!response.url || !response.name)) errorMsg = 'Content script returned incomplete channel info.';
-            setStatusMessage(errorMsg, 'error');
+            // Ping was received by something, but response was not the expected pong.
+            setStatusMessage('Unexpected response from page, cannot get channel info.', 'error');
+            console.error('Ping received unexpected response:', response);
           }
         });
       } else if (isKnownChannelUrl) {
-        // NOW, message content script even for direct channel pages to get logo and potentially better name
+        // Logic for direct channel pages:
+        // For now, we'll keep the existing logic which tries to message directly.
+        // This could also be updated to use the ping-then-inject pattern if needed.
         chrome.tabs.sendMessage(tab.id, { action: "getChannelInfo" }, function(response) {
           let channelName = title.replace('- YouTube', '').trim(); // Use tab title as fallback
           let channelLogo = null;
