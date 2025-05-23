@@ -68,47 +68,64 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  function saveChannelToStorage(channelObject) {
+    chrome.storage.sync.get({savedChannels: []}, function(data) {
+      if (chrome.runtime.lastError) {
+        setStatusMessage('Error loading existing channels.', 'error');
+        console.error("Storage.get error for channels:", chrome.runtime.lastError.message);
+        return;
+      }
+      let savedChannels = data.savedChannels || [];
+      if (savedChannels.some(c => c.url === channelObject.url)) {
+        setStatusMessage('Channel already saved.', 'info');
+        return;
+      }
+      savedChannels.push(channelObject);
+      chrome.storage.sync.set({savedChannels: savedChannels}, function() {
+        if (chrome.runtime.lastError) {
+          setStatusMessage('Error saving channel.', 'error');
+          console.error(chrome.runtime.lastError.message);
+        } else {
+          setStatusMessage('Channel saved!', 'success');
+        }
+      });
+    });
+  }
+
   saveChannelButton.addEventListener('click', function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      if (tabs[0]) {
-        const tab = tabs[0];
-        const url = tab.url;
-        let title = tab.title;
-
-        const isChannelUrl = url && (url.includes('youtube.com/channel/') || url.includes('youtube.com/user/') || url.includes('youtube.com/@'));
-
-        if (isChannelUrl) {
-          // Attempt to derive channel name from title
-          title = title.replace('- YouTube', '').trim();
-          const channel = { url, name: title, dateAdded: new Date().toISOString() };
-
-          chrome.storage.sync.get({savedChannels: []}, function(data) {
-            if (chrome.runtime.lastError) {
-              setStatusMessage('Error loading existing channels.', 'error');
-              console.error("Storage.get error for channels:", chrome.runtime.lastError.message);
-              return;
-            }
-            const savedChannels = data.savedChannels;
-            // Check if channel already exists
-            if (savedChannels.some(c => c.url === url)) {
-              setStatusMessage('Channel already saved.', 'info');
-              return;
-            }
-            savedChannels.push(channel);
-            chrome.storage.sync.set({savedChannels: savedChannels}, function() {
-              if (chrome.runtime.lastError) {
-                setStatusMessage('Error saving channel.', 'error');
-                console.error(chrome.runtime.lastError.message);
-              } else {
-                setStatusMessage('Channel saved!', 'success');
-              }
-            });
-          });
-        } else {
-          setStatusMessage('Not a YouTube channel page.', 'info');
-        }
-      } else {
+      if (!tabs[0] || !tabs[0].url) {
         setStatusMessage('Could not get current tab information.', 'error');
+        return;
+      }
+      const tab = tabs[0];
+      const url = tab.url;
+      let title = tab.title; // Title is primarily for direct channel pages
+
+      const isVideoUrl = url.includes('youtube.com/watch');
+      const isKnownChannelUrl = url.includes('youtube.com/channel/') || url.includes('youtube.com/user/') || url.includes('youtube.com/@');
+
+      if (isVideoUrl) {
+        chrome.tabs.sendMessage(tab.id, { action: "getChannelInfo" }, function(response) {
+          if (chrome.runtime.lastError) {
+            setStatusMessage('Error communicating with the page to get channel info.', 'error');
+            console.error(chrome.runtime.lastError.message);
+            return;
+          }
+          if (response && response.success) {
+            const channelToSave = { url: response.url, name: response.name, dateAdded: new Date().toISOString() };
+            saveChannelToStorage(channelToSave);
+          } else {
+            setStatusMessage(response && response.error ? response.error : 'Failed to get channel info from video page.', 'error');
+          }
+        });
+      } else if (isKnownChannelUrl) {
+        // Basic cleaning, consider if content script could be used here too for consistency in future.
+        title = title.replace('- YouTube', '').trim(); 
+        const channelToSave = { url, name: title, dateAdded: new Date().toISOString() };
+        saveChannelToStorage(channelToSave);
+      } else {
+        setStatusMessage('Not a YouTube video or recognized channel page.', 'info');
       }
     });
   });
