@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Helper function for saveChannelButton when isVideoUrl is true
   function getChannelInfoAndSave(currentTabId, videoPageUrl, videoPageTitle) {
+    console.log(`[Popup LOG] getChannelInfoAndSave called. Tab ID: ${currentTabId}, Video Page URL: ${videoPageUrl}, Video Page Title: ${videoPageTitle}`); // <-- ADD THIS
     // Note: videoPageUrl and videoPageTitle are currently unused but passed for potential future use
     // The content script (getChannelInfo) is expected to determine the actual channel URL and name
     chrome.tabs.sendMessage(currentTabId, { action: "getChannelInfo" }, function(response) {
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
           dateAdded: new Date().toISOString(),
           logoUrl: response.logoUrl || null
         };
+        console.log('[Popup LOG] Attempting to save channel:', JSON.stringify(channelToSave)); // <-- ADD THIS
         saveChannelToStorage(channelToSave); // saveChannelToStorage is an existing function
       } else {
         let errorMsg = 'Failed to get channel info from video page.';
@@ -168,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const tab = tabs[0];
       const url = tab.url;
       let title = tab.title; // Title is primarily for direct channel pages
+      console.log(`[Popup LOG] Save Channel Button Clicked. Tab URL: ${url}, Tab Title: ${title}`); // <-- ADD THIS
 
       const isVideoUrl = url.includes('youtube.com/watch');
       const isKnownChannelUrl = url.includes('youtube.com/channel/') || url.includes('youtube.com/user/') || url.includes('youtube.com/@');

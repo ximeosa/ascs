@@ -5,7 +5,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Indicate async response, though this one is synchronous
   } else if (request.action === "getChannelInfo") {
     try {
-      console.log("YouTube Bookmarker: Received getChannelInfo in content script"); // Optional: for debugging
+      console.log(`[ContentScript LOG] Received getChannelInfo. Current document URL: ${document.URL}, Document Title: ${document.title}`); // <-- ADD THIS
+      // console.log("YouTube Bookmarker: Received getChannelInfo in content script"); // Optional: for debugging //  (Keeping old log for now, can be removed later)
       let channelName = null;
       let channelUrl = null;
       let videoCategory = null;
@@ -131,6 +132,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const foundSomething = channelName || channelUrl || videoCategory || channelLogoUrl;
 
       if (foundSomething) {
+        console.log(`[ContentScript LOG] Sending channel info: Name: ${channelName}, URL: ${channelUrl}, Category: ${videoCategory}, Logo URL: ${channelLogoUrl}`); // <-- ADD THIS
         sendResponse({
           success: true,
           name: channelName || null,
@@ -139,10 +141,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           logoUrl: channelLogoUrl || null
         });
       } else {
+        console.log(`[ContentScript LOG] Sending failure response: No channel info found. Document URL: ${document.URL}`); // <-- ADD THIS
         sendResponse({ success: false, error: "Could not automatically determine any page information." });
       }
     } catch (e) {
       console.error("Content script error in getChannelInfo:", e);
+      console.log(`[ContentScript LOG] Sending error response due to exception. Document URL: ${document.URL}`); // <-- ADD THIS
       sendResponse({ 
         success: false, 
         error: "Internal content script error: " + (e.message ? e.message : "Unknown error") 
