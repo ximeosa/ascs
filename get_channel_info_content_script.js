@@ -1,8 +1,9 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getChannelInfo") {
-    let channelName = null;
-    let channelUrl = null;
-    let videoCategory = null;
+    try {
+      let channelName = null;
+      let channelUrl = null;
+      let videoCategory = null;
     let channelLogoUrl = null; // New variable
 
     // Method 1: Try common selectors for channel link
@@ -124,17 +125,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // Determine success based on whether we found at least something useful
     const foundSomething = channelName || channelUrl || videoCategory || channelLogoUrl;
 
-    if (foundSomething) {
-      sendResponse({
-        success: true,
-        name: channelName || null,
-        url: channelUrl || null,
-        category: videoCategory || null,
-        logoUrl: channelLogoUrl || null
+      if (foundSomething) {
+        sendResponse({
+          success: true,
+          name: channelName || null,
+          url: channelUrl || null,
+          category: videoCategory || null,
+          logoUrl: channelLogoUrl || null
+        });
+      } else {
+        sendResponse({ success: false, error: "Could not automatically determine any page information." });
+      }
+    } catch (e) {
+      console.error("Content script error in getChannelInfo:", e);
+      sendResponse({ 
+        success: false, 
+        error: "Internal content script error: " + (e.message ? e.message : "Unknown error") 
       });
-    } else {
-      sendResponse({ success: false, error: "Could not automatically determine any page information." });
     }
     return true; // Indicates that the response is sent asynchronously
   }
+  // If there are other actions, they might need similar error handling or a default response.
+  // For now, only "getChannelInfo" is critical.
+  return true; // Ensure it returns true for other message types too, if any, to keep the port open if they are async. Or remove if no other types. For safety, keep it.
 });
