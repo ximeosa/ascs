@@ -1,9 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Common elements
+    const statusMessageEl = document.getElementById('status-message');
+
+    // Video specific elements
     const videosList = document.getElementById('videos-list');
     const videoSortOptions = document.getElementById('video-sort-options');
     const videoCategoryFilter = document.getElementById('video-category-filter');
-    const statusMessageEl = document.getElementById('status-message'); // Renamed for clarity
 
+    // Channel specific elements
+    const channelsList = document.getElementById('channels-list');
+    const channelSortOptions = document.getElementById('channel-sort-options');
+
+    // --- Common Functions ---
     function clearStatusMessage() {
         statusMessageEl.textContent = '';
         statusMessageEl.className = ''; // Clear any existing status classes
@@ -15,13 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(clearStatusMessage, 3000);
     }
 
+    // --- Video Logic (Adapted from saved_videos.js) ---
     function populateCategoryFilter(bookmarks) {
         const currentFilterValue = videoCategoryFilter.value;
-        // Store existing "All Categories" option
         const allCategoriesOption = videoCategoryFilter.querySelector('option[value="all"]');
-        videoCategoryFilter.innerHTML = ''; // Clear existing options
+        videoCategoryFilter.innerHTML = ''; 
         if (allCategoriesOption) {
-            videoCategoryFilter.appendChild(allCategoriesOption); // Add "All Categories" back
+            videoCategoryFilter.appendChild(allCategoriesOption); 
         }
 
         const categories = new Set();
@@ -61,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error(chrome.runtime.lastError.message);
                 } else {
                     setStatusMessage('Video deleted!', 'success');
-                    displaySavedVideos(); // Refresh the list
+                    displaySavedVideos(); // Refresh the video list
                 }
             });
         });
@@ -69,18 +77,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displaySavedVideos() {
         clearStatusMessage();
-        videosList.innerHTML = ''; // Clear current list
+        videosList.innerHTML = ''; 
 
         chrome.storage.sync.get({bookmarks: []}, function(data) {
             if (chrome.runtime.lastError) {
                 setStatusMessage('Error loading saved videos.', 'error');
-                videosList.innerHTML = '<li>Error loading videos.</li>';
+                videosList.innerHTML = '<li class="empty-state">Error loading videos.</li>';
                 console.error("Storage.get error for bookmarks:", chrome.runtime.lastError.message);
                 return;
             }
 
             let bookmarks = data.bookmarks || [];
-            populateCategoryFilter(bookmarks); // Populate filter before filtering
+            populateCategoryFilter(bookmarks); 
 
             const categoryFilterValue = videoCategoryFilter.value;
             if (categoryFilterValue !== 'all') {
@@ -92,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (sortValue === 'dateAdded') {
                     return new Date(b.dateAdded) - new Date(a.dateAdded);
                 } else if (sortValue === 'category') {
-                    const catA = a.category || 'zzzz'; // Treat undefined/empty categories as last
+                    const catA = a.category || 'zzzz'; 
                     const catB = b.category || 'zzzz';
                     return catA.localeCompare(catB);
                 } else if (sortValue === 'title') {
@@ -102,10 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (bookmarks.length === 0) {
-                videosList.innerHTML = '<li>No videos saved yet. Add some videos to see them here!</li>';
-                if (categoryFilterValue !== 'all') {
-                    videosList.innerHTML = '<li>No videos found for this category.</li>';
-                }
+                videosList.innerHTML = `<li class="empty-state">No videos saved yet. ${categoryFilterValue !== 'all' ? 'for this category.' : 'Add some videos to see them here!'}</li>`;
                 return;
             }
 
@@ -138,12 +143,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const categorySpan = document.createElement('span');
                 categorySpan.textContent = `Category: ${bookmark.category || 'None'}`;
-                categorySpan.classList.add('item-details'); // Use class from common_styles.css
+                categorySpan.classList.add('item-details');
                 textDetailsDiv.appendChild(categorySpan);
 
                 const dateSpan = document.createElement('span');
                 dateSpan.textContent = `Added: ${new Date(bookmark.dateAdded).toLocaleDateString()}`;
-                dateSpan.classList.add('item-details'); // Use class from common_styles.css
+                dateSpan.classList.add('item-details');
                 textDetailsDiv.appendChild(dateSpan);
                 
                 contentDiv.appendChild(textDetailsDiv);
@@ -163,9 +168,94 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // --- Channel Logic (Adapted from saved_channels.js) ---
+    function handleDeleteChannel(channelUrl) {
+        chrome.storage.sync.get({savedChannels: []}, function(data) {
+            if (chrome.runtime.lastError) {
+                setStatusMessage('Error loading channels for deletion.', 'error');
+                console.error("Storage.get error for channels (delete):", chrome.runtime.lastError.message);
+                return;
+            }
+            let channels = data.savedChannels.filter(channel => channel.url !== channelUrl);
+            chrome.storage.sync.set({savedChannels: channels}, function() {
+                if (chrome.runtime.lastError) {
+                    setStatusMessage('Error deleting channel.', 'error');
+                    console.error(chrome.runtime.lastError.message);
+                } else {
+                    setStatusMessage('Channel deleted!', 'success');
+                    displaySavedChannels(); // Refresh the channel list
+                }
+            });
+        });
+    }
+
+    function displaySavedChannels() {
+        clearStatusMessage();
+        channelsList.innerHTML = ''; 
+
+        chrome.storage.sync.get({savedChannels: []}, function(data) {
+            if (chrome.runtime.lastError) {
+                setStatusMessage('Error loading saved channels.', 'error');
+                channelsList.innerHTML = '<li class="empty-state">Error loading channels.</li>';
+                console.error("Storage.get error for savedChannels:", chrome.runtime.lastError.message);
+                return;
+            }
+
+            let savedChannels = data.savedChannels || [];
+
+            const sortValue = channelSortOptions.value;
+            savedChannels.sort((a, b) => {
+                if (sortValue === 'dateAdded') {
+                    return new Date(b.dateAdded) - new Date(a.dateAdded);
+                } else if (sortValue === 'name') {
+                    return a.name.localeCompare(b.name);
+                }
+                return 0;
+            });
+
+            if (savedChannels.length === 0) {
+                channelsList.innerHTML = '<li class="empty-state">No channels saved yet. Add some channels to see them here!</li>';
+                return;
+            }
+
+            savedChannels.forEach(channel => {
+                const listItem = document.createElement('li');
+                
+                const contentDiv = document.createElement('div'); // For text content, to align with video structure
+                contentDiv.style.flexGrow = '1'; // Allow it to take up space
+
+                const link = document.createElement('a');
+                link.href = channel.url;
+                link.textContent = channel.name;
+                link.target = '_blank';
+                contentDiv.appendChild(link);
+
+                const dateSpan = document.createElement('span');
+                dateSpan.textContent = `Added: ${new Date(channel.dateAdded).toLocaleDateString()}`;
+                dateSpan.classList.add('item-details');
+                contentDiv.appendChild(dateSpan);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete-btn');
+                deleteButton.dataset.channelurl = channel.url;
+                deleteButton.addEventListener('click', function() {
+                    handleDeleteChannel(this.dataset.channelurl);
+                });
+
+                listItem.appendChild(contentDiv);
+                listItem.appendChild(deleteButton);
+                channelsList.appendChild(listItem);
+            });
+        });
+    }
+
+    // --- Event Listeners ---
     videoSortOptions.addEventListener('change', displaySavedVideos);
     videoCategoryFilter.addEventListener('change', displaySavedVideos);
+    channelSortOptions.addEventListener('change', displaySavedChannels);
 
-    // Initial display
+    // --- Initial Display Calls ---
     displaySavedVideos();
+    displaySavedChannels();
 });

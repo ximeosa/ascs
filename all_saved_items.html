@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Saved Items</title>
+    <link rel="stylesheet" type="text/css" href="common_styles.css">
+</head>
+<body>
+    <h1>All Saved Items</h1>
+    <div id="status-message"></div>
+
+    <h2>Saved Videos</h2>
+    <div class="controls-section" id="video-controls-section">
+        <div>
+            <label for="video-sort-options">Sort Videos by:</label>
+            <select id="video-sort-options">
+                <option value="dateAdded">Date (Newest First)</option>
+                <option value="category">Category (A-Z)</option>
+                <option value="title">Title (A-Z)</option>
+            </select>
+        </div>
+        <div>
+            <label for="video-category-filter">Filter by Category:</label>
+            <select id="video-category-filter">
+                <option value="all">All Categories</option>
+                <!-- Other categories will be populated by JavaScript -->
+            </select>
+        </div>
+    </div>
+    <ul id="videos-list"></ul>
+
+    <h2>Saved Channels</h2>
+    <div class="controls-section" id="channel-controls-section">
+        <div>
+            <label for="channel-sort-options">Sort Channels by:</label>
+            <select id="channel-sort-options">
+                <option value="dateAdded">Date (Newest First)</option>
+                <option value="name">Name (A-Z)</option>
+            </select>
+        </div>
+    </div>
+    <ul id="channels-list"></ul>
+
+    <script src="all_saved_items.js"></script>
+</body>
+</html>

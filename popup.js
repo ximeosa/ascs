@@ -26,8 +26,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const title = tab.title;
 
         if (url && url.includes('youtube.com/watch')) {
+          let videoId = null;
+          try {
+            videoId = new URL(url).searchParams.get('v');
+          } catch (e) {
+            console.warn("Could not parse URL to get video ID:", e);
+          }
+          
+          let thumbnailUrl = '';
+          if (videoId) {
+            thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+          }
+
           const category = categoryInput.value.trim();
-          const bookmark = { url, title, category, dateAdded: new Date().toISOString() };
+          const bookmark = { url, title, category, dateAdded: new Date().toISOString(), thumbnailUrl: thumbnailUrl };
 
           chrome.storage.sync.get({bookmarks: []}, function(data) {
             if (chrome.runtime.lastError) {
@@ -101,11 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  document.getElementById('view-saved-videos').addEventListener('click', function() {
-    chrome.tabs.create({ url: chrome.runtime.getURL('saved_videos.html') });
-  });
-
-  document.getElementById('view-saved-channels').addEventListener('click', function() {
-    chrome.tabs.create({ url: chrome.runtime.getURL('saved_channels.html') });
+  document.getElementById('view-all-items').addEventListener('click', function() {
+    chrome.tabs.create({ url: chrome.runtime.getURL('all_saved_items.html') });
   });
 });
